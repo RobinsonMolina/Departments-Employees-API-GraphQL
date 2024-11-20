@@ -12,20 +12,22 @@ const typeDefs = `
     phone: String
     email: String
     salary: Float
-    department: Department
+    department: String
   }
 
   input DepartmentInput {
+    id: String
     name: String
     numEmployees: Int
   }
 
   input EmployeeInput {
+    id: String
     name: String
     phone: String
     email: String
     salary: Float
-    departmentId: Int
+    department: String
   }
 
   type Query {
@@ -37,12 +39,12 @@ const typeDefs = `
 
   type Mutation {
     createDepartment(input: DepartmentInput!): Department
-    updateDepartment(id: Int, input: DepartmentInput!): Department
-    deleteDepartment(id: Int): Boolean
+    updateDepartment(id: String!, input: DepartmentInput!): Department
+    deleteDepartment(input: String): Boolean
 
     createEmployee(input: EmployeeInput!): Employee
-    updateEmployee(id: Int, input: EmployeeInput!): Employee
-    deleteEmployee(id: Int): Boolean
+    updateEmployee(id: String!, input: EmployeeInput!): Employee
+    deleteEmployee(input: String): Boolean
   }
 `;
 
