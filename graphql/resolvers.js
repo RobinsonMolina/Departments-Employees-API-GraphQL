@@ -6,19 +6,19 @@ const resolvers = {
   Query: {
     departments: async () => {
       const response = await axios.get(`${BASE_URL}/departments`);
-      return response.data;
+      return response.data.data;
     },
     department: async (_, { id }) => {
       const response = await axios.get(`${BASE_URL}/departments/${id}`);
-      return response.data;
+      return response.data.data;
     },
     employees: async (_, { departmentId }) => {
-      const response = await axios.get(`${BASE_URL}/departments/${departmentId}/employees`);
-      return response.data;
+      const response = await axios.get(`${BASE_URL}/employees`);
+      return response.data.data;
     },
     employee: async (_, { id }) => {
       const response = await axios.get(`${BASE_URL}/employees/${id}`);
-      return response.data;
+      return response.data.data;
     },
   },
   Mutation: {

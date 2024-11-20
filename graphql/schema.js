@@ -1,13 +1,13 @@
 const typeDefs = `
   type Department {
-    id: Int
+    id: String
     name: String
     numEmployees: Int
     employees: [Employee]
   }
 
   type Employee {
-    id: Int
+    id: String
     name: String
     phone: String
     email: String
@@ -30,9 +30,9 @@ const typeDefs = `
 
   type Query {
     departments: [Department]
-    department(id: Int): Department
-    employees(departmentId: Int): [Employee]
-    employee(id: Int): Employee
+    department(id: String): Department
+    employees: [Employee]
+    employee(id: String): Employee
   }
 
   type Mutation {
