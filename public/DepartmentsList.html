@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Departamentos</title>
+  <style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    table, th, td {
+      border: 1px solid black;
+    }
+    th, td {
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+<body>
+  <h1>Lista de Departamentos</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Número de Empleados</th>
+      </tr>
+    </thead>
+    <tbody id="departments-table-body">
+      <!-- Las filas se generarán dinámicamente aquí -->
+    </tbody>
+  </table>
+
+  <script>
+    // Función para obtener los departamentos del servidor
+    async function fetchDepartments() {
+      try {
+        const response = await fetch('/api/departments');
+        const departments = await response.json();
+
+        const tableBody = document.getElementById('departments-table-body');
+
+        departments.forEach(department => {
+          const row = document.createElement('tr');
+
+          // Columna ID
+          const idCell = document.createElement('td');
+          idCell.textContent = department._id;
+          row.appendChild(idCell);
+
+          // Columna Nombre
+          const nameCell = document.createElement('td');
+          nameCell.textContent = department.name;
+          row.appendChild(nameCell);
+
+          // Columna Número de Empleados
+          const numEmployeesCell = document.createElement('td');
+          numEmployeesCell.textContent = department.numEmployees;
+          row.appendChild(numEmployeesCell);
+
+          // Agregar la fila a la tabla
+          tableBody.appendChild(row);
+        });
+      } catch (error) {
+        console.error('Error obteniendo departamentos:', error);
+      }
+    }
+
+    // Llamar a la función al cargar la página
+    fetchDepartments();
+  </script>
+</body>
+</html>

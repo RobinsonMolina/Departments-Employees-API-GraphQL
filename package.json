@@ -3,13 +3,18 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@apollo/client": "^3.11.10",
+    "@apollo/server": "^4.11.2",
     "apollo-server": "^3.13.0",
     "axios": "^1.7.7",
     "dotenv": "^16.4.5",

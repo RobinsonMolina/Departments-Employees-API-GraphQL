@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buscar Empleado</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    input {
+      padding: 10px;
+      margin-right: 10px;
+      width: 300px;
+    }
+    button {
+      padding: 10px;
+    }
+    .message {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+    .error {
+      color: red;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    table, th, td {
+      border: 1px solid black;
+    }
+    th, td {
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+<body>
+  <h1>Buscar Empleado por ID</h1>
+  
+  <div>
+    <input type="text" id="employee-id" placeholder="Ingresa el ID del empleado" />
+    <button onclick="searchEmployee()">Buscar</button>
+  </div>
+
+  <div id="result" class="message"></div>
+
+  <table id="employee-table" style="display: none;">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Teléfono</th>
+        <th>Email</th>
+        <th>Salario</th>
+        <th>Departamento</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td id="em-id"></td>
+        <td id="em-name"></td>
+        <td id="em-phone"></td>
+        <td id="em-email"></td>
+        <td id="em-salary"></td>
+        <td id="em-department"></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <script>
+
+async function getDepartmentName(departmentId) {
+      try {
+        const response = await fetch(`/api/departments/${departmentId}`);
+        if (!response.ok) throw new Error('Departamento no encontrado');
+        const department = await response.json();
+        return department.name || 'Sin departamento';
+      } catch (error) {
+        console.error('Error obteniendo el nombre del departamento:', error);
+        return 'Sin departamento';
+      }
+    }
+
+    async function searchEmployee() {
+      const employeeId = document.getElementById('employee-id').value.trim();
+      const resultDiv = document.getElementById('result');
+      const table = document.getElementById('employee-table');
+
+      // Resetear el mensaje y la tabla
+      resultDiv.textContent = '';
+      resultDiv.className = 'message';
+      table.style.display = 'none';
+
+      if (!employeeId) {
+        resultDiv.textContent = 'Por favor, ingresa un ID válido.';
+        resultDiv.classList.add('error');
+        return;
+      }
+
+      try {
+        // Realizar la solicitud al servidor
+        const response = await fetch(`/api/employees/${employeeId}`);
+        
+        if (!response.ok) {
+          throw new Error('Empleado no encontrado');
+        }
+
+        const employee = await response.json();
+
+        // Mostrar los datos en la tabla
+        document.getElementById('em-id').textContent = employee._id;
+        document.getElementById('em-name').textContent = employee.name;
+        document.getElementById('em-phone').textContent = employee.phone;
+        document.getElementById('em-email').textContent = employee.email;
+        document.getElementById('em-salary').textContent = employee.salary;
+        
+        const departmentName = await getDepartmentName(employee.department);
+        document.getElementById('em-department').textContent = departmentName;
+
+        table.style.display = 'table';
+
+      } catch (error) {
+        // Mostrar mensaje de error si el departamento no fue encontrado
+        resultDiv.textContent = error.message || 'Error al buscar el empleado.';
+        resultDiv.classList.add('error');
+      }
+    }
+  </script>
+</body>
+</html>
