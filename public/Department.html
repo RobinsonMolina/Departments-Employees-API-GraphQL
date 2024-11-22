@@ -3,116 +3,29 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Buscar Departamento</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-    }
-    input {
-      padding: 10px;
-      margin-right: 10px;
-      width: 300px;
-    }
-    button {
-      padding: 10px;
-    }
-    .message {
-      margin-top: 20px;
-      font-weight: bold;
-    }
-    .error {
-      color: red;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-    table, th, td {
-      border: 1px solid black;
-    }
-    th, td {
-      padding: 10px;
-      text-align: left;
-    }
-    th {
-      background-color: #f2f2f2;
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css">
+  <script src="DepartmentLogic.js" defer></script>
+  <title>Departamentos</title>
 </head>
 <body>
-  <h1>Buscar Departamento por ID</h1>
-  
-  <div>
-    <input type="text" id="department-id" placeholder="Ingresa el ID del departamento" />
-    <button onclick="searchDepartment()">Buscar</button>
+  <h1>Gestión de Departamentos</h1>
+  <div class="search-bar">
+    <input type="text" id="search-id" placeholder="Buscar por ID" oninput="filterDepartments()">
+    <button onclick="location.href='CreateDepartment.html'">Crear Nuevo Departamento</button>
   </div>
-
-  <div id="result" class="message"></div>
-
-  <table id="department-table" style="display: none;">
+  
+  <table>
     <thead>
       <tr>
         <th>ID</th>
         <th>Nombre</th>
-        <th>Empleados</th>
         <th>Número de Empleados</th>
+        <th>Acciones</th>
       </tr>
     </thead>
-    <tbody>
-      <tr>
-        <td id="dept-id"></td>
-        <td id="dept-name"></td>
-        <td id="dept-employees"></td>
-        <td id="dept-num-employees"></td>
-      </tr>
+    <tbody id="departments-table-body">
+      <!-- Las filas se generarán dinámicamente aquí -->
     </tbody>
   </table>
-
-  <script>
-    async function searchDepartment() {
-      const departmentId = document.getElementById('department-id').value.trim();
-      const resultDiv = document.getElementById('result');
-      const table = document.getElementById('department-table');
-
-      // Resetear el mensaje y la tabla
-      resultDiv.textContent = '';
-      resultDiv.className = 'message';
-      table.style.display = 'none';
-
-      if (!departmentId) {
-        resultDiv.textContent = 'Por favor, ingresa un ID válido.';
-        resultDiv.classList.add('error');
-        return;
-      }
-
-      try {
-        // Realizar la solicitud al servidor
-        const response = await fetch(`/api/departments/${departmentId}`);
-        
-        if (!response.ok) {
-          throw new Error('Departamento no encontrado');
-        }
-
-        const department = await response.json();
-
-        // Mostrar los datos en la tabla
-        document.getElementById('dept-id').textContent = department._id;
-        document.getElementById('dept-name').textContent = department.name;
-        document.getElementById('dept-employees').textContent = department.employees.length > 0 
-          ? department.employees.join(', ') 
-          : 'Sin empleados';
-        document.getElementById('dept-num-employees').textContent = department.numEmployees;
-
-        table.style.display = 'table';
-
-      } catch (error) {
-        // Mostrar mensaje de error si el departamento no fue encontrado
-        resultDiv.textContent = error.message || 'Error al buscar el departamento.';
-        resultDiv.classList.add('error');
-      }
-    }
-  </script>
 </body>
 </html>

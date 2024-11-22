@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editar Empleado</title>
+</head>
+<body>
+  <h1>Editar Empleado</h1>
+  <form id="update-employee-form">
+    <label>
+      Nombre:
+      <input type="text" id="name" required>
+    </label>
+    <br>
+    <label>
+      Teléfono:
+      <input type="text" id="phone" required>
+    </label>
+    <br>
+    <label>
+      Email:
+      <input type="email" id="email" required>
+    </label>
+    <br>
+    <label>
+      Salario:
+      <input type="number" id="salary" required>
+    </label>
+    <br>
+    <label>
+      Departamento:
+      <select id="department" required>
+        <option value="">Seleccionar departamento</option>
+      </select>
+    </label>
+    <br><br>
+    <button type="submit">Guardar Cambios</button>
+    <button type="button" onclick="location.href='Employee.html'">Cancelar</button>
+  </form>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const employeeId = urlParams.get('id');
+
+    async function fetchEmployee() {
+      try {
+        const response = await fetch(`/api/employees/${employeeId}`);
+        if (!response.ok) throw new Error('Empleado no encontrado');
+        const employee = await response.json();
+        populateForm(employee);
+      } catch (error) {
+        console.error('Error al cargar empleado:', error);
+        alert('Error al cargar los datos del empleado');
+      }
+    }
+
+    async function fetchDepartments() {
+      try {
+        const response = await fetch('/api/departments');
+        const departments = await response.json();
+        const departmentSelect = document.getElementById('department');
+        departments.forEach(dept => {
+          const option = document.createElement('option');
+          option.value = dept._id;
+          option.textContent = dept.name;
+          departmentSelect.appendChild(option);
+        });
+      } catch (error) {
+        console.error('Error al cargar departamentos:', error);
+      }
+    }
+
+    function populateForm(employee) {
+      document.getElementById('name').value = employee.name;
+      document.getElementById('phone').value = employee.phone;
+      document.getElementById('email').value = employee.email;
+      document.getElementById('salary').value = employee.salary;
+      document.getElementById('department').value = employee.department;
+    }
+
+    document.getElementById('update-employee-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const updatedEmployee = {
+        name: document.getElementById('name').value,
+        phone: document.getElementById('phone').value,
+        email: document.getElementById('email').value,
+        salary: parseFloat(document.getElementById('salary').value),
+        department: document.getElementById('department').value,
+      };
+
+      try {
+        const response = await fetch(`/api/employees/${employeeId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updatedEmployee),
+        });
+
+        if (response.ok) {
+          alert('Empleado actualizado con éxito');
+          location.href = 'Employee.html';
+        } else {
+          alert('Error al actualizar empleado');
+        }
+      } catch (error) {
+        console.error('Error al actualizar empleado:', error);
+      }
+    });
+
+    fetchEmployee();
+    fetchDepartments();
+  </script>
+</body>
+</html>

@@ -29,6 +29,8 @@ const startServer = async () => {
     expressMiddleware(apolloServer)
   );
 
+  app.use(express.json());
+
   app.get('/api/departments', async (req, res) => {
     try {
       // Usar el resolver actual para obtener los departamentos
@@ -71,7 +73,6 @@ const startServer = async () => {
     try {
       const employeeId = req.params.id;
       const employee = await resolvers.Query.employee(null, { id: employeeId });
-      console.log(employeeId)
       if (!employee) {
         return res.status(404).json({ error: 'Empleado no encontrado' });
       }
@@ -80,6 +81,123 @@ const startServer = async () => {
     } catch (error) {
       console.error('Error al buscar el empleado:', error);
       res.status(500).json({ error: 'Error al buscar el empleado' });
+    }
+  });
+
+  app.post('/api/departments', async (req, res) => {
+    try {
+      const { id, name, numEmployees } = req.body;
+  
+      if (!id || !name || typeof numEmployees !== 'number') {
+        return res.status(400).json({ message: 'Faltan datos requeridos o son inválidos.' });
+      }
+  
+      const input = { id, name, numEmployees };
+      const createdDepartment = await resolvers.Mutation.createDepartment(null, { input });
+  
+      res.status(201).json(createdDepartment);
+    } catch (error) {
+      console.error('Error creando departamento:', error);
+      res.status(500).json({ message: 'Error al crear el departamento.' });
+    }
+  });
+
+  app.put('/api/departments/:id', async (req, res) => {
+    try {
+      const { id, name, numEmployees } = req.body;
+      console.log(numEmployees)
+      if (!name) {
+        console.log("Faltaan")
+        return res.status(400).json({ error: 'Faltan datos' });
+      }
+  
+      const updatedDepartment = await resolvers.Mutation.updateDepartment(
+        null,
+        { id, input: { name, numEmployees } }
+      );
+  
+      res.json(updatedDepartment);
+    } catch (error) {
+      console.error('Error actualizando el departamento:', error);
+      res.status(500).json({ error: 'Error al actualizar el departamento' });
+    }
+  });
+  
+  app.delete('/api/departments/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      // Llama al resolver y encapsula el ID dentro de un objeto
+      const result = await resolvers.Mutation.deleteDepartment(null, { input: id });
+  
+      if (!result) {
+        return res.status(404).json({ message: 'Departamento no encontrado' });
+      }
+  
+      res.status(200).json({ message: 'Departamento eliminado con éxito' });
+    } catch (error) {
+      console.error('Error eliminando departamento:', error);
+      res.status(500).json({ message: 'Error al eliminar el departamento' });
+    }
+  });
+  
+  app.post('/api/employees', async (req, res) => {
+    try {
+      const { id, name, phone, email, salary, department } = req.body;
+
+      console.log(department)
+  
+      if (!id || !name || !phone || !email || !salary || !department) {
+        console.log("tonto faltan")
+        return res.status(400).json({ message: 'Faltan datos requeridos o son inválidos.' });
+      }
+  
+      const input = { id, name, phone, email, salary, department };
+      const createdEmployee = await resolvers.Mutation.createEmployee(null, { input });
+  
+      res.status(201).json(createdEmployee);
+    } catch (error) {
+      console.error('Error creando empleado:', error);
+      res.status(500).json({ message: 'Error al crear el empleado.' });
+    }
+  });
+
+  app.put('/api/employees/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { name, phone, email, salary, department } = req.body;
+  
+      if (!name || !phone || !email || !salary || !department) {
+        return res.status(400).json({ message: 'Faltan datos requeridos.' });
+      }
+  
+      const input = { name, phone, email, salary, department };
+      const updatedEmployee = await resolvers.Mutation.updateEmployee(null, { id, input });
+  
+      if (!updatedEmployee) {
+        return res.status(404).json({ message: 'Empleado no encontrado.' });
+      }
+  
+      res.json(updatedEmployee);
+    } catch (error) {
+      console.error('Error actualizando el empleado:', error);
+      res.status(500).json({ message: 'Error al actualizar el empleado.' });
+    }
+  });
+
+  app.delete('/api/employees/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+  
+      const result = await resolvers.Mutation.deleteEmployee(null, { input: id });
+  
+      if (!result) {
+        return res.status(404).json({ message: 'Empleado no encontrado.' });
+      }
+  
+      res.status(200).json({ message: 'Empleado eliminado con éxito.' });
+    } catch (error) {
+      console.error('Error eliminando empleado:', error);
+      res.status(500).json({ message: 'Error al eliminar el empleado.' });
     }
   });
 

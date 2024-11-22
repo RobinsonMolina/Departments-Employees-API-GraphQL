@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crear Empleado</title>
+</head>
+<body>
+  <h1>Crear Nuevo Empleado</h1>
+  <form id="create-employee-form">
+    <label>
+        id:
+        <input type="text" id="id" required>
+      </label>
+      <br>
+    <label>
+      Nombre:
+      <input type="text" id="name" required>
+    </label>
+    <br>
+    <label>
+      Teléfono:
+      <input type="text" id="phone" required>
+    </label>
+    <br>
+    <label>
+      Email:
+      <input type="email" id="email" required>
+    </label>
+    <br>
+    <label>
+      Salario:
+      <input type="number" id="salary" required>
+    </label>
+    <br>
+    <label>
+      Departamento:
+      <select id="department" required>
+        <option value="">Seleccionar departamento</option>
+      </select>
+    </label>
+    <br><br>
+    <button type="submit">Crear</button>
+    <button type="button" onclick="location.href='Employee.html'">Volver</button>
+  </form>
+
+  <script>
+    async function fetchDepartments() {
+      try {
+        const response = await fetch('/api/departments');
+        const departments = await response.json();
+        const departmentSelect = document.getElementById('department');
+        departments.forEach(dept => {
+          const option = document.createElement('option');
+          option.value = dept._id;
+          option.textContent = dept.name;
+          departmentSelect.appendChild(option);
+        });
+      } catch (error) {
+        console.error('Error cargando departamentos:', error);
+      }
+    }
+
+    document.getElementById('create-employee-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const employee = {
+        id: document.getElementById('id').value,
+        name: document.getElementById('name').value,
+        phone: document.getElementById('phone').value,
+        email: document.getElementById('email').value,
+        salary: parseFloat(document.getElementById('salary').value),
+        department: document.getElementById('department').value,
+      };
+
+      try {
+        const response = await fetch('/api/employees', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(employee),
+        });
+
+        if (response.ok) {
+          alert('Empleado creado con éxito');
+          location.href = 'Employee.html';
+        } else {
+          alert('Error al crear empleado');
+        }
+      } catch (error) {
+        console.error('Error creando empleado:', error);
+      }
+    });
+
+    fetchDepartments();
+  </script>
+</body>
+</html>

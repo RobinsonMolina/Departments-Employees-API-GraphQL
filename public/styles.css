@@ -1,0 +1,81 @@
+/* General */
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+  }
+  
+  h1 {
+    margin-bottom: 20px;
+  }
+  
+  button {
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    opacity: 0.9;
+  }
+  
+  /* Tablas */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  
+  table, th, td {
+    border: 1px solid black;
+  }
+  
+  th, td {
+    padding: 10px;
+    text-align: left;
+  }
+  
+  th {
+    background-color: #f2f2f2;
+  }
+  
+  /* Botones */
+  .edit {
+    background-color: #4CAF50;
+    color: white;
+  }
+  
+  .edit:hover {
+    background-color: #45a049;
+  }
+  
+  .delete {
+    background-color: #f44336;
+    color: white;
+  }
+  
+  .delete:hover {
+    background-color: #da190b;
+  }
+  
+  /* Inputs */
+  input {
+    margin-top: 20px;
+    padding: 10px;
+    width: 300px;
+    display: block;
+  }
+  
+  /* Mensajes */
+  .message {
+    margin-top: 20px;
+    font-weight: bold;
+  }
+  
+  .success {
+    color: green;
+  }
+  
+  .error {
+    color: red;
+  }
+  

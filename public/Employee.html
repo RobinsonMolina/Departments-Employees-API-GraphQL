@@ -3,27 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Buscar Empleado</title>
+  <title>Lista de Empleados</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-    }
-    input {
-      padding: 10px;
-      margin-right: 10px;
-      width: 300px;
-    }
-    button {
-      padding: 10px;
-    }
-    .message {
-      margin-top: 20px;
-      font-weight: bold;
-    }
-    .error {
-      color: red;
-    }
     table {
       width: 100%;
       border-collapse: collapse;
@@ -39,19 +20,33 @@
     th {
       background-color: #f2f2f2;
     }
+    .actions button {
+      margin-right: 5px;
+    }
+    .search-bar {
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      padding: 10px;
+      margin-right: 10px;
+      width: 300px;
+    }
+    button {
+      padding: 10px;
+    }
   </style>
 </head>
 <body>
-  <h1>Buscar Empleado por ID</h1>
-  
-  <div>
-    <input type="text" id="employee-id" placeholder="Ingresa el ID del empleado" />
-    <button onclick="searchEmployee()">Buscar</button>
+  <h1>Lista de Empleados</h1>
+
+  <div class="search-bar">
+    <input type="text" id="search-id" placeholder="Buscar por ID">
+    <button onclick="filterEmployees()">Buscar</button>
+    <button onclick="resetFilter()">Resetear</button>
+    <button onclick="location.href='CreateEmployee.html'">Crear Nuevo Empleado</button>
   </div>
 
-  <div id="result" class="message"></div>
-
-  <table id="employee-table" style="display: none;">
+  <table>
     <thead>
       <tr>
         <th>ID</th>
@@ -60,23 +55,28 @@
         <th>Email</th>
         <th>Salario</th>
         <th>Departamento</th>
+        <th>Acciones</th>
       </tr>
     </thead>
-    <tbody>
-      <tr>
-        <td id="em-id"></td>
-        <td id="em-name"></td>
-        <td id="em-phone"></td>
-        <td id="em-email"></td>
-        <td id="em-salary"></td>
-        <td id="em-department"></td>
-      </tr>
+    <tbody id="employees-table-body">
+      <!-- Filas generadas dinámicamente -->
     </tbody>
   </table>
 
   <script>
+    let employees = [];
 
-async function getDepartmentName(departmentId) {
+    async function fetchEmployees() {
+      try {
+        const response = await fetch('/api/employees');
+        employees = await response.json();
+        populateTable(employees);
+      } catch (error) {
+        console.error('Error al cargar empleados:', error);
+      }
+    }
+
+    async function getDepartmentName(departmentId) {
       try {
         const response = await fetch(`/api/departments/${departmentId}`);
         if (!response.ok) throw new Error('Departamento no encontrado');
@@ -88,50 +88,86 @@ async function getDepartmentName(departmentId) {
       }
     }
 
-    async function searchEmployee() {
-      const employeeId = document.getElementById('employee-id').value.trim();
-      const resultDiv = document.getElementById('result');
-      const table = document.getElementById('employee-table');
+    async function populateTable(data) {
+      const tableBody = document.getElementById('employees-table-body');
+      tableBody.innerHTML = '';
 
-      // Resetear el mensaje y la tabla
-      resultDiv.textContent = '';
-      resultDiv.className = 'message';
-      table.style.display = 'none';
+      for (const employee of data) {
+        const row = document.createElement('tr');
 
-      if (!employeeId) {
-        resultDiv.textContent = 'Por favor, ingresa un ID válido.';
-        resultDiv.classList.add('error');
-        return;
-      }
+        const idCell = document.createElement('td');
+        idCell.textContent = employee._id;
+        row.appendChild(idCell);
 
-      try {
-        // Realizar la solicitud al servidor
-        const response = await fetch(`/api/employees/${employeeId}`);
-        
-        if (!response.ok) {
-          throw new Error('Empleado no encontrado');
-        }
+        const nameCell = document.createElement('td');
+        nameCell.textContent = employee.name;
+        row.appendChild(nameCell);
 
-        const employee = await response.json();
+        const phoneCell = document.createElement('td');
+        phoneCell.textContent = employee.phone;
+        row.appendChild(phoneCell);
 
-        // Mostrar los datos en la tabla
-        document.getElementById('em-id').textContent = employee._id;
-        document.getElementById('em-name').textContent = employee.name;
-        document.getElementById('em-phone').textContent = employee.phone;
-        document.getElementById('em-email').textContent = employee.email;
-        document.getElementById('em-salary').textContent = employee.salary;
-        
+        const emailCell = document.createElement('td');
+        emailCell.textContent = employee.email;
+        row.appendChild(emailCell);
+
+        const salaryCell = document.createElement('td');
+        salaryCell.textContent = employee.salary;
+        row.appendChild(salaryCell);
+
+        const departmentCell = document.createElement('td');
+        departmentCell.textContent = 'Cargando...';
+        row.appendChild(departmentCell);
+
         const departmentName = await getDepartmentName(employee.department);
-        document.getElementById('em-department').textContent = departmentName;
+        departmentCell.textContent = departmentName;
 
-        table.style.display = 'table';
+        const actionsCell = document.createElement('td');
+        actionsCell.classList.add('actions');
 
-      } catch (error) {
-        // Mostrar mensaje de error si el departamento no fue encontrado
-        resultDiv.textContent = error.message || 'Error al buscar el empleado.';
-        resultDiv.classList.add('error');
+        const updateButton = document.createElement('button');
+        updateButton.textContent = 'Editar';
+        updateButton.onclick = () => location.href = `UpdateEmployee.html?id=${employee._id}`;
+        actionsCell.appendChild(updateButton);
+
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Eliminar';
+        deleteButton.onclick = () => deleteEmployee(employee._id);
+        actionsCell.appendChild(deleteButton);
+
+        row.appendChild(actionsCell);
+        tableBody.appendChild(row);
       }
     }
+
+    function filterEmployees() {
+      const searchId = document.getElementById('search-id').value.trim();
+      const filtered = employees.filter(emp => emp._id === searchId);
+      populateTable(filtered);
+    }
+
+    function resetFilter() {
+      document.getElementById('search-id').value = '';
+      populateTable(employees);
+    }
+
+    async function deleteEmployee(id) {
+      if (confirm('¿Seguro que deseas eliminar este empleado?')) {
+        try {
+          const response = await fetch(`/api/employees/${id}`, { method: 'DELETE' });
+          if (response.ok) {
+            alert('Empleado eliminado con éxito');
+            fetchEmployees();
+          } else {
+            alert('Error al eliminar empleado');
+          }
+        } catch (error) {
+          console.error('Error eliminando empleado:', error);
+        }
+      }
+    }
+
+    fetchEmployees();
   </script>
 </body>
 </html>
